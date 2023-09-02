@@ -13,7 +13,7 @@ export function App() {
   const { data: paginatedTransactions, ...paginatedTransactionsUtils } = usePaginatedTransactions()
   const { data: transactionsByEmployee, ...transactionsByEmployeeUtils } = useTransactionsByEmployee()
   const [isLoading, setIsLoading] = useState(false)
-
+  const [isFilteredByEmployee, setIsFilteredByEmployee] = useState(false);
   const transactions = useMemo(
     () => paginatedTransactions?.data ?? transactionsByEmployee ?? null,
     [paginatedTransactions, transactionsByEmployee]
@@ -31,6 +31,7 @@ export function App() {
 
   const loadTransactionsByEmployee = useCallback(
     async (employeeId: string) => {
+      setIsFilteredByEmployee(true)
       paginatedTransactionsUtils.invalidateData()
       await transactionsByEmployeeUtils.fetchById(employeeId)
     },
@@ -51,7 +52,7 @@ export function App() {
         <hr className="RampBreak--l" />
 
         <InputSelect<Employee>
-          isLoading={isLoading}
+          isLoading={employeeUtils.loading}
           defaultValue={EMPTY_EMPLOYEE}
           items={employees === null ? [] : [EMPTY_EMPLOYEE, ...employees]}
           label="Filter by employee"
@@ -60,22 +61,22 @@ export function App() {
             value: item.id,
             label: `${item.firstName} ${item.lastName}`,
           })}
-          onChange={async (newValue) => {
-            if (newValue === null || newValue.id === EMPTY_EMPLOYEE.id ) {
-              await loadAllTransactions();
-              return
-            }
-
-            await loadTransactionsByEmployee(newValue.id)
-          }}
-        />
+           onChange={async (newValue) => {
+              if (newValue === null || newValue.id === EMPTY_EMPLOYEE.id ) {
+                setIsFilteredByEmployee(false);
+                await loadAllTransactions();
+                return
+              }
+              await loadTransactionsByEmployee(newValue.id)
+            }}
+          />
 
         <div className="RampBreak--l" />
 
         <div className="RampGrid">
           <Transactions transactions={transactions} />
 
-          {transactions !== null && (
+          {transactions !== null && !isFilteredByEmployee && (
             <button
               className="RampButton"
               disabled={paginatedTransactionsUtils.loading}

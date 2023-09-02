@@ -30,5 +30,7 @@ export function usePaginatedTransactions(): PaginatedTransactionsResult {
     setPaginatedTransactions(null)
   }, [])
 
+
+
   return { data: paginatedTransactions, loading, fetchAll, invalidateData }
 }
