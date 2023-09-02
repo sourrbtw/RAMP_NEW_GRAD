@@ -103,6 +103,7 @@ hr.RampBreak--l {
 }
 
 .RampInputSelect--dropdown-container-opened {
+  position: absolute;
   display: block;
 }
 
